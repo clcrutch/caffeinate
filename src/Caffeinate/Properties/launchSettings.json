@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Caffeinate": {
-      "commandName": "Project",
-      "commandLineArgs": "--notify notepad.exe"
+      "commandName": "Project"
     }
   }
 }

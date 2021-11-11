@@ -1,6 +1,13 @@
 ﻿using Caffeinate.SleepHandlers;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Caffeinate
 {
@@ -53,8 +60,17 @@ namespace Caffeinate
             using var sleepHandler = await CreateSleepHandlerAsync();
 
             await sleepHandler.PreventSleepAsync();
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey(true);
+
+            if (Console.IsInputRedirected)
+            {
+                Console.ReadLine();
+            }
+            else
+            {
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadKey();
+            }
+
             await sleepHandler.AllowSleepAsync();
         }
 
@@ -137,10 +153,15 @@ namespace Caffeinate
                     RedirectStandardOutput = true
                 });
 
-                if (process != null && process.ExitCode == 0)
+                if (process != null)
                 {
                     await process.WaitForExitAsync();
-                    return Path.Join(await process.StandardOutput.ReadToEndAsync(), ".caffeinate");
+                    var homeDirectory =
+                        (await process.StandardOutput.ReadToEndAsync()).Trim()
+                        .Replace("\\", "/")
+                        .Replace("C:", "mnt/c");
+                    
+                    return Path.Join(homeDirectory, ".caffeinate");
                 }
             }
 
@@ -171,14 +192,10 @@ namespace Caffeinate
                 return false;
             }
 
-            var process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "grep",
-                Arguments = "-qEi \"(Microsoft | WSL)\" /proc/version"
-            });
-            await (process?.WaitForExitAsync() ?? Task.CompletedTask);
+            using var reader = File.OpenText("/proc/version");
+            var content = await reader.ReadToEndAsync();
 
-            return (process?.ExitCode ?? 1) == 0;
+            return Regex.Match(content, "(Microsoft|WSL)")?.Success ?? false;
         }
     }
 }

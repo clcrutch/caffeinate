@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Caffeinate.SleepHandlers
@@ -22,7 +23,7 @@ namespace Caffeinate.SleepHandlers
             var cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.CancelAfter(10 * 1000); // Kill after 10 seconds
 
-            await caffeinateProcess.StandardInput.WriteAsync(" ");
+            await caffeinateProcess.StandardInput.WriteAsync("\n");
             await caffeinateProcess.WaitForExitAsync(cancellationTokenSource.Token);
 
             if (cancellationTokenSource.IsCancellationRequested)
@@ -44,7 +45,7 @@ namespace Caffeinate.SleepHandlers
             {
                 FileName = "caf.exe",
                 RedirectStandardOutput = true,
-                RedirectStandardInput = true
+                RedirectStandardInput = true,
             });
         }
 
