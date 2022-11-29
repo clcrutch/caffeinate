@@ -86,6 +86,11 @@ namespace Caffeinate
                 return new WslSleepHandler();
             }
 
+            if (IsSystemd())
+            {
+                return new SystemdSleepHandler();
+            }
+
             throw new NotImplementedException();
         }
 
@@ -196,6 +201,16 @@ namespace Caffeinate
             var content = await reader.ReadToEndAsync();
 
             return Regex.Match(content, "(Microsoft|WSL)")?.Success ?? false;
+        }
+
+        static bool IsSystemd()
+        {
+            if (!OperatingSystem.IsLinux())
+            {
+                return false;
+            }
+
+            return Process.GetProcessById(1).ProcessName == "systemd";
         }
     }
 }
