@@ -16,7 +16,7 @@ Task("Build")
     .IsDependentOn("Clean")
     .Does(() =>
 {
-    DotNetCoreBuild("./Caffeinate.sln", new DotNetCoreBuildSettings
+    DotNetBuild("./Caffeinate.sln", new DotNetBuildSettings
     {
         Configuration = configuration,
     });
@@ -26,7 +26,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-    DotNetCoreTest("./Caffeinate.sln", new DotNetCoreTestSettings
+    DotNetTest("./Caffeinate.sln", new DotNetTestSettings
     {
         Configuration = configuration,
         NoBuild = true,
@@ -37,7 +37,7 @@ Task("Pack")
     .IsDependentOn("Test")
     .Does(() =>
 {
-    DotNetCorePack("./Caffeinate.sln", new DotNetCorePackSettings
+    DotNetPack("./Caffeinate.sln", new DotNetPackSettings
     {
         Configuration = configuration,
         NoBuild = true
